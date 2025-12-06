@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>FICES Reality Check - Validatore Idee Brutale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 3px solid #ff4444;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #ff4444;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        .warning-banner {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .input-section {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 18px 35px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            -webkit-appearance: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            min-height: 48px;
+        }
+
+        .btn-record {
+            background: #ff4444;
+            color: white;
+        }
+
+        .btn-record:hover {
+            background: #cc0000;
+            transform: scale(1.05);
+        }
+
+        .btn-record.recording {
+            background: #00ff00;
+            animation: recording-pulse 1s infinite;
+        }
+
+        @keyframes recording-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+            50% { box-shadow: 0 0 20px 10px rgba(0, 255, 0, 0); }
+        }
+
+        .btn-analyze {
+            background: #444;
+            color: white;
+        }
+
+        .btn-analyze:hover:not(:disabled) {
+            background: #666;
+        }
+
+        .btn-analyze:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            background: #1a1a1a;
+            border: 2px solid #444;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            resize: vertical;
+            -webkit-appearance: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .status.listening {
+            background: #00ff0020;
+            color: #00ff00;
+        }
+
+        .status.processing {
+            background: #ffaa0020;
+            color: #ffaa00;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .verdict {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(255, 68, 68, 0.4);
+        }
+
+        .verdict.positive {
+            background: linear-gradient(135deg, #00aa00 0%, #007700 100%);
+        }
+
+        .solutions {
+            display: grid;
+            gap: 20px;
+        }
+
+        .solution {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #ff4444;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .solution.feasible {
+            border-left-color: #00aa00;
+        }
+
+        .solution.maybe {
+            border-left-color: #ffaa00;
+        }
+
+        .solution.nope {
+            border-left-color: #ff4444;
+        }
+
+        .solution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .solution-title {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .solution-tag {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .tag-feasible {
+            background: #00aa00;
+            color: white;
+        }
+
+        .tag-maybe {
+            background: #ffaa00;
+            color: black;
+        }
+
+        .tag-nope {
+            background: #ff4444;
+            color: white;
+        }
+
+        .metric {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .metric-item {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .brutal-truth {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid #ff4444;
+        }
+
+        .brutal-truth h4 {
+            color: #ff4444;
+            margin-bottom: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-modify {
+            flex: 1;
+            background: #666;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-modify:hover {
+            background: #888;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 5px solid #333;
+            border-top: 5px solid #ff4444;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .edit-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            -webkit-appearance: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .metric {
+                grid-template-columns: 1fr;
+            }
+
+            .solution-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .voice-controls {
+                flex-direction: column;
+            }
+
+            .voice-controls button {
+                width: 100%;
+            }
+        }
+
+        .super-consulenza {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 3px solid #ff4444;
+        }
+
+        .consulenza-section {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ff4444;
+        }
+
+        .consulenza-section h3 {
+            color: #ff4444;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .consulenza-section p {
+            color: #ddd;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .consulenza-section ul {
+            color: #ccc;
+            line-height: 1.8;
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .consulenza-section li {
+            margin-bottom: 10px;
+        }
+
+        .warning-box {
+            background: #ff440020;
+            border: 2px solid #ff4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .success-box {
+            background: #00aa0020;
+            border: 2px solid #00aa00;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .info-box {
+            background: #0088ff20;
+            border: 2px solid #0088ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .phase {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #ffaa00;
+        }
+
+        .phase-title {
+            font-weight: bold;
+            color: #ffaa00;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 430px) {
+            /* iPhone 16 Pro Max, 15 Pro Max */
+            h1 {
+                font-size: 1.6em;
+            }
+
+            .input-section, .solution {
+                padding: 20px;
+            }
+
+            .super-consulenza {
+                padding: 20px;
+            }
+
+            .consulenza-section {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 393px) {
+            /* iPhone 16 Pro, 15 Pro, 14 Pro */
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 375px) {
+            /* iPhone SE, older models */
+            h1 {
+                font-size: 1.4em;
+            }
+
+            button {
+                padding: 15px 25px;
+                font-size: 1em;
+            }
+
+            .metric-value {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ FICES REALITY CHECK ⚡</h1>
+            <p class="subtitle">Il validatore di idee che non ti dice quello che vuoi sentire</p>
+        </header>
+
+        <div class="warning-banner">
+            ⚠️ ATTENZIONE: Questa app è BRUTALMENTE ONESTA. Preparati alla verità nuda e cruda. ⚠️
+        </div>
+
+        <div class="input-section" style="background: #1a3a1a; border: 2px solid #00aa00;">
+            <h3 style="margin-bottom: 15px; color: #00ff00;">📱 IMPORTANTE - Riconoscimento Vocale su iOS:</h3>
+            <div style="background: #ffaa0020; border-left: 4px solid #ffaa00; padding: 15px; margin-bottom: 15px; border-radius: 6px;">
+                <strong style="color: #ffaa00;">⚠️ REQUISITI:</strong>
+                <ul style="color: #aaffaa; line-height: 1.8; margin: 10px 0 0 20px;">
+                    <li>Devi aprire questa pagina con <strong>HTTPS</strong> (URL sicuro con lucchetto 🔒)</li>
+                    <li>Su iOS, il riconoscimento vocale richiede una connessione sicura</li>
+                    <li>Se apri da file locale (file://), NON funzionerà su iPhone</li>
+                </ul>
+            </div>
+            <ol style="color: #aaffaa; line-height: 1.8; margin-left: 20px;">
+                <li>Clicca "Registra Idea" - Safari mostrerà un popup</li>
+                <li>Tocca <strong>"Consenti"</strong> quando richiesto</li>
+                <li>Se hai negato: Impostazioni → Safari → Microfono → Consenti</li>
+                <li><strong>ALTERNATIVA:</strong> Usa il campo di testo qui sotto (sempre funzionante)</li>
+            </ol>
+        </div>
+
+        <div class="input-section">
+            <h2 style="margin-bottom: 20px;">📢 Esponi la tua idea</h2>
+            
+            <div class="voice-controls">
+                <button class="btn-record" id="recordBtn">
+                    🎤 Registra Idea
+                </button>
+                <button class="btn-analyze" id="analyzeBtn" disabled>
+                    🔍 Analizza (Brutale)
+                </button>
+            </div>
+
+            <div id="status" class="status" style="display: none;"></div>
+
+            <textarea id="ideaText" placeholder="Oppure scrivi la tua idea qui... (o registrala con il microfono sopra)"></textarea>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analizzando con brutalità chirurgica...</p>
+        </div>
+
+        <div class="results" id="results" style="display: none;">
+            <div class="verdict" id="verdict"></div>
+            
+            <div id="superConsulenza" class="super-consulenza" style="display: none;">
+                <h2 style="color: #ff4444; margin-bottom: 20px; font-size: 2em;">🔥 SUPER CONSULENZA BRUTALE</h2>
+                
+                <div class="consulenza-section">
+                    <h3>📋 ANALISI DETTAGLIATA DELL'IDEA</h3>
+                    <div id="analysisDetail"></div>
+                </div>
+
+                <div class="consulenza-section">
+                    <h3>⚠️ RISCHI REALI (quelli che nessuno ti dice)</h3>
+                    <div id="risksDetail"></div>
+                </div>
+
+                <div class="consulenza-section">
+                    <h3>💰 BREAKDOWN COSTI NASCOSTI</h3>
+                    <div id="costsDetail"></div>
+                </div>
+
+                <div class="consulenza-section">
+                    <h3>📅 TIMELINE REALISTICA (non quella dei sogni)</h3>
+                    <div id="timelineDetail"></div>
+                </div>
+
+                <div class="consulenza-section">
+                    <h3>🎯 PROCEDURE STEP-BY-STEP</h3>
+                    <div id="proceduresDetail"></div>
+                </div>
+
+                <div class="consulenza-section">
+                    <h3>✅ FATTIBILITÀ NEL CONTESTO FICES</h3>
+                    <div id="feasibilityDetail"></div>
+                </div>
+
+                <div class="consulenza-section">
+                    <h3>🔧 RISORSE NECESSARIE (persone, tech, infrastruttura)</h3>
+                    <div id="resourcesDetail"></div>
+                </div>
+
+                <div class="consulenza-section">
+                    <h3>💀 IL VERDETTO FINALE (senza filtri)</h3>
+                    <div id="finalVerdictDetail"></div>
+                </div>
+            </div>
+
+            <div class="solutions" id="solutions"></div>
+        </div>
+
+        <div class="edit-modal" id="editModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Modifica Soluzione</h2>
+                    <button class="close-modal" onclick="closeEditModal()">✕ Chiudi</button>
+                </div>
+                <form id="editForm">
+                    <div class="form-group">
+                        <label>Titolo Soluzione</label>
+                        <input type="text" id="editTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Costo Stimato (€)</label>
+                        <input type="number" id="editCost" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tempo Realizzazione (giorni)</label>
+                        <input type="number" id="editTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fattibilità (1-10)</label>
+                        <input type="number" id="editFeasibility" min="1" max="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrizione / Note</label>
+                        <textarea id="editDescription" rows="4"></textarea>
+                    </div>
+                    <button type="submit" style="width: 100%; padding: 15px; background: #00aa00; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        💾 Salva Modifiche
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let recognition;
+        let isRecording = false;
+        let currentEditIndex = -1;
+        let currentSolutions = [];
+
+        // Inizializza Speech Recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'it-IT';
+            recognition.continuous = false; // iOS Safari funziona meglio con continuous=false
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                document.getElementById('status').style.display = 'block';
+                document.getElementById('status').className = 'status listening';
+                document.getElementById('status').textContent = '🎤 In ascolto... Parla pure!';
+            };
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                const textarea = document.getElementById('ideaText');
+                if (finalTranscript) {
+                    textarea.value += finalTranscript;
+                    document.getElementById('analyzeBtn').disabled = false;
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Errore riconoscimento vocale:', event.error);
+                document.getElementById('status').className = 'status';
+                document.getElementById('status').style.display = 'none';
+                isRecording = false;
+                document.querySelector('.btn-record').classList.remove('recording');
+                document.querySelector('.btn-record').textContent = '🎤 Registra Idea';
+                
+                // Gestione errori specifici iOS con istruzioni dettagliate
+                if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+                    const isHTTPS = window.location.protocol === 'https:';
+                    const isLocalFile = window.location.protocol === 'file:';
+                    
+                    let message = '❌ RICONOSCIMENTO VOCALE NON DISPONIBILE\n\n';
+                    
+                    if (isLocalFile) {
+                        message += '🚫 PROBLEMA: Stai aprendo il file localmente (file://)\n\n';
+                        message += 'Su iOS/Safari, il riconoscimento vocale richiede HTTPS.\n\n';
+                        message += '✅ SOLUZIONE:\n';
+                        message += '• Carica questo file su un server web con HTTPS\n';
+                        message += '• Oppure usa un servizio come GitHub Pages\n';
+                        message += '• OPPURE usa il campo di testo manuale (sempre funzionante)\n';
+                    } else if (!isHTTPS) {
+                        message += '🚫 PROBLEMA: Connessione non sicura (HTTP)\n\n';
+                        message += 'Su iOS/Safari, il riconoscimento vocale richiede HTTPS.\n\n';
+                        message += '✅ SOLUZIONE:\n';
+                        message += '• Apri la pagina con https:// invece di http://\n';
+                        message += '• OPPURE usa il campo di testo manuale (sempre funzionante)\n';
+                    } else {
+                        message += '📱 COME RISOLVERE SU iOS:\n\n';
+                        message += '1. Apri Impostazioni iOS\n';
+                        message += '2. Scorri e trova "Safari"\n';
+                        message += '3. Tocca "Microfono"\n';
+                        message += '4. Seleziona "Consenti"\n';
+                        message += '5. Ricarica questa pagina\n\n';
+                        message += '💡 ALTERNATIVA:\n';
+                        message += 'Usa il campo di testo per scrivere la tua idea.';
+                    }
+                    
+                    alert(message);
+                } else if (event.error === 'no-speech') {
+                    alert('🎤 Nessun audio rilevato.\n\nAssicurati di:\n• Parlare vicino al microfono\n• Non avere la modalità silenziosa attiva\n• Parlare ad alta voce\n\nProva di nuovo!');
+                } else if (event.error === 'audio-capture') {
+                    alert('❌ MICROFONO NON DISPONIBILE\n\nPossibili cause:\n• Microfono in uso da un\'altra app\n• Microfono hardware non funzionante\n• Permessi non concessi\n\nChiudi altre app che potrebbero usare il microfono e riprova.');
+                } else if (event.error === 'network') {
+                    alert('🌐 Errore di connessione.\n\nIl riconoscimento vocale richiede una connessione internet attiva.\nVerifica la tua connessione e riprova.');
+                } else {
+                    alert('⚠️ Errore: ' + event.error + '\n\nProva a ricaricare la pagina o usa il campo di testo per inserire manualmente la tua idea.');
+                }
+            };
+
+            recognition.onend = () => {
+                if (isRecording) {
+                    // iOS Safari: riavvia automaticamente solo se l'utente non ha fermato manualmente
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.log('Recognition ended naturally');
+                        isRecording = false;
+                        document.querySelector('.btn-record').classList.remove('recording');
+                        document.querySelector('.btn-record').textContent = '🎤 Registra Idea';
+                        document.getElementById('status').style.display = 'none';
+                    }
+                }
+            };
+        }
+
+        document.getElementById('recordBtn').addEventListener('click', async () => {
+            if (!recognition) {
+                alert('Il riconoscimento vocale non è supportato. Assicurati di usare Safari su iOS o Chrome su Android.');
+                return;
+            }
+
+            if (!isRecording) {
+                try {
+                    // Su iOS, Speech Recognition gestisce automaticamente i permessi
+                    // Non usiamo getUserMedia perché può causare conflitti
+                    recognition.start();
+                    isRecording = true;
+                    document.querySelector('.btn-record').classList.add('recording');
+                    document.querySelector('.btn-record').textContent = '⏹️ Stop Registrazione';
+                } catch (e) {
+                    console.error('Errore avvio riconoscimento:', e);
+                    if (e.message && e.message.includes('already started')) {
+                        // Il riconoscimento è già attivo, fermiamolo
+                        recognition.stop();
+                        isRecording = false;
+                        document.querySelector('.btn-record').classList.remove('recording');
+                        document.querySelector('.btn-record').textContent = '🎤 Registra Idea';
+                    } else {
+                        alert('⚠️ Impossibile avviare il riconoscimento vocale.\n\nSu iOS/Safari:\n1. Il riconoscimento vocale funziona solo con HTTPS (non HTTP)\n2. Assicurati di essere su una pagina sicura\n3. Usa il campo di testo come alternativa\n\nSe hai negato i permessi:\nImpostazioni iOS → Safari → Microfono → Consenti');
+                    }
+                }
+            } else {
+                try {
+                    recognition.stop();
+                    isRecording = false;
+                    document.querySelector('.btn-record').classList.remove('recording');
+                    document.querySelector('.btn-record').textContent = '🎤 Registra Idea';
+                    document.getElementById('status').style.display = 'none';
+                } catch (e) {
+                    console.error('Errore stop riconoscimento:', e);
+                }
+            }
+        });
+
+        document.getElementById('ideaText').addEventListener('input', (e) => {
+            document.getElementById('analyzeBtn').disabled = e.target.value.trim().length === 0;
+        });
+
+        document.getElementById('analyzeBtn').addEventListener('click', () => {
+            const idea = document.getElementById('ideaText').value.trim();
+            if (!idea) return;
+
+            analyzeIdea(idea);
+        });
+
+        function analyzeIdea(idea) {
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').style.display = 'none';
+
+            // Simula analisi (in produzione collegare a backend/AI)
+            setTimeout(() => {
+                const analysis = performBrutalAnalysis(idea);
+                displayResults(analysis);
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('results').style.display = 'block';
+            }, 2000);
+        }
+
+        function performBrutalAnalysis(idea) {
+            // Logica di analisi brutale
+            const keywords = idea.toLowerCase();
+            let feasibilityScore = 5;
+            let costMultiplier = 1;
+            let timeMultiplier = 1;
+
+            // Analisi parole chiave negative
+            if (keywords.includes('app') || keywords.includes('software')) costMultiplier += 0.5;
+            if (keywords.includes('automatizzare')) feasibilityScore += 1;
+            if (keywords.includes('nuovo') || keywords.includes('innovativo')) {
+                costMultiplier += 1;
+                timeMultiplier += 0.5;
+            }
+            if (keywords.includes('veloce') || keywords.includes('subito')) timeMultiplier -= 0.3;
+            if (keywords.includes('complesso') || keywords.includes('integrazione')) {
+                costMultiplier += 1.5;
+                timeMultiplier += 1;
+                feasibilityScore -= 1;
+            }
+
+            feasibilityScore = Math.max(1, Math.min(10, feasibilityScore));
+
+            const solutions = [
+                {
+                    title: "Soluzione Pragmatica Base",
+                    cost: Math.round(5000 * costMultiplier),
+                    time: Math.round(30 * timeMultiplier),
+                    feasibility: Math.min(10, feasibilityScore + 2),
+                    description: "Versione minimalista con funzionalità essenziali. Niente fronzoli, solo quello che serve.",
+                    brutal: "È la soluzione del 'fai il minimo indispensabile'. Funziona? Sì. È sexy? No. Ma almeno la finisci."
+                },
+                {
+                    title: "Soluzione con Excel e Macro",
+                    cost: Math.round(500 * costMultiplier),
+                    time: Math.round(7 * timeMultiplier),
+                    feasibility: Math.min(10, feasibilityScore + 3),
+                    description: "Il buon vecchio Excel risolve il 70% dei problemi. Veloce, economico, funziona.",
+                    brutal: "Sei sicuro di aver bisogno di tutto sto ambaradam? Excel + un po' di VBA fanno miracoli. Meno glamour, più concretezza."
+                },
+                {
+                    title: "Soluzione Professionale Completa",
+                    cost: Math.round(25000 * costMultiplier),
+                    time: Math.round(120 * timeMultiplier),
+                    feasibility: Math.max(1, feasibilityScore - 2),
+                    description: "Sistema enterprise-grade con tutte le features immaginabili. Scalabile, integrato, professionale.",
+                    brutal: "Ambizioso? Sì. Realistico per FICES? Probabilmente no. Budget enorme, tempi biblici, rischio fallimento alto. Pensaci bene."
+                },
+                {
+                    title: "Soluzione Ibrida Pragmatica",
+                    cost: Math.round(12000 * costMultiplier),
+                    time: Math.round(60 * timeMultiplier),
+                    feasibility: feasibilityScore,
+                    description: "Mix tra sviluppo custom e strumenti esistenti. Bilanciamento tra costi e funzionalità.",
+                    brutal: "Il compromesso classico. Non è né carne né pesce, ma spesso è la scelta più sensata. Funziona nell'80% dei casi."
+                },
+                {
+                    title: "Soluzione 'Non Fare Niente'",
+                    cost: 0,
+                    time: 0,
+                    feasibility: 10,
+                    description: "Continua come stai facendo ora. A volte la migliore soluzione è non cambiare nulla.",
+                    brutal: "VERITÀ BRUTALE: forse non hai bisogno di questa cosa. Il costo opportunità del tuo tempo potrebbe superare i benefici. Chiediti: risolve DAVVERO un problema critico?"
+                }
+            ];
+
+            currentSolutions = solutions;
+
+            const overallFeasibility = feasibilityScore >= 6;
+            const verdict = overallFeasibility
+                ? `✅ IDEA FATTIBILE (ma preparati a sudare)`
+                : `❌ IDEA PROBLEMATICA (alto rischio, valuta bene)`;
+
+            // Genera super consulenza dettagliata
+            const consulenza = generateSuperConsulenza(idea, feasibilityScore, costMultiplier, timeMultiplier, solutions);
+
+            return { verdict, overallFeasibility, solutions, consulenza };
+        }
+
+        function generateSuperConsulenza(idea, feasibilityScore, costMultiplier, timeMultiplier, solutions) {
+            const isComplex = idea.toLowerCase().includes('complesso') || idea.toLowerCase().includes('integrazione');
+            const isApp = idea.toLowerCase().includes('app') || idea.toLowerCase().includes('software');
+            const needsAutomation = idea.toLowerCase().includes('automatizzare') || idea.toLowerCase().includes('automatico');
+            
+            return {
+                analysis: `
+                    <p><strong>LA TUA IDEA IN SINTESI:</strong></p>
+                    <p>${idea}</p>
+                    
+                    <div class="info-box">
+                        <strong>📊 SCORE FATTIBILITÀ: ${feasibilityScore}/10</strong><br>
+                        <strong>💰 MOLTIPLICATORE COSTO: ${costMultiplier.toFixed(1)}x</strong><br>
+                        <strong>⏱️ MOLTIPLICATORE TEMPO: ${timeMultiplier.toFixed(1)}x</strong>
+                    </div>
+
+                    <p><strong>COSA SIGNIFICA NEL CONCRETO:</strong></p>
+                    <ul>
+                        <li>La tua idea ha una complessità ${costMultiplier > 1.5 ? 'ALTA' : costMultiplier > 1 ? 'MEDIA' : 'BASSA'}</li>
+                        <li>I tempi di realizzazione sono ${timeMultiplier > 1 ? 'PIÙ LUNGHI del previsto' : 'GESTIBILI'}</li>
+                        <li>La fattibilità è ${feasibilityScore >= 7 ? 'BUONA - si può fare' : feasibilityScore >= 4 ? 'MEDIA - serve pianificazione' : 'BASSA - rischi alti'}</li>
+                    </ul>
+                `,
+                
+                risks: `
+                    <div class="warning-box">
+                        <strong>⚠️ RISCHI PRINCIPALI:</strong>
+                        <ul>
+                            ${isComplex ? '<li><strong>COMPLESSITÀ TECNICA:</strong> Integrazioni complesse = più bug, più tempo di debug, più costi nascosti</li>' : ''}
+                            ${isApp ? '<li><strong>SVILUPPO SOFTWARE:</strong> Manutenzione continua necessaria, aggiornamenti, bug fixing. Non è "fatto e dimenticato"</li>' : ''}
+                            ${needsAutomation ? '<li><strong>AUTOMAZIONE:</strong> Richiede test approfonditi. Se sbaglia in automatico, sbaglia in GRANDE</li>' : ''}
+                            <li><strong>CAMBIO PROCESSI:</strong> Il personale FICES dovrà cambiare abitudini. Resistenza al cambiamento = rischio fallimento</li>
+                            <li><strong>COSTI NASCOSTI:</strong> Formazione, supporto, manutenzione. Calcola +30% sul preventivo</li>
+                            ${costMultiplier > 1.5 ? '<li><strong>BUDGET OVERFLOW:</strong> Alta probabilità di sforamento budget. Prevedi riserva del 50%</li>' : ''}
+                            <li><strong>TEMPO:</strong> I tempi stimati sono OTTIMISTICI. Nella realtà aggiungi 40-60% in più</li>
+                        </ul>
+                    </div>
+
+                    <p><strong>PROBABILITÀ DI FALLIMENTO:</strong> ${feasibilityScore < 4 ? 'ALTA (60-80%)' : feasibilityScore < 7 ? 'MEDIA (30-50%)' : 'BASSA (10-20%)'}</p>
+                `,
+
+                costs: `
+                    <p><strong>OLTRE AI COSTI INDICATI NELLE SOLUZIONI, CONSIDERA:</strong></p>
+                    
+                    <div class="phase">
+                        <div class="phase-title">💶 COSTI INIZIALI</div>
+                        <ul>
+                            ${isApp ? '<li>Sviluppo software: già calcolato nelle soluzioni</li>' : ''}
+                            <li>Hardware/Server (se necessario): €500-2.000</li>
+                            <li>Licenze software: €200-1.000/anno</li>
+                            <li>Setup iniziale e configurazione: €500-2.000</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">🔄 COSTI RICORRENTI (OGNI ANNO)</div>
+                        <ul>
+                            <li>Manutenzione: 15-20% del costo iniziale</li>
+                            <li>Hosting/Cloud (se applicabile): €300-1.200/anno</li>
+                            <li>Supporto tecnico: €1.000-3.000/anno</li>
+                            <li>Aggiornamenti: €500-2.000/anno</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">👥 COSTI INTERNI FICES</div>
+                        <ul>
+                            <li>Tempo dedicato dal personale: 40-80 ore (= €2.000-4.000 di costo opportunità)</li>
+                            <li>Formazione dipendenti: 8-16 ore/persona</li>
+                            <li>Gestione e supervisione: 2-4 ore/settimana ongoing</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>💀 LA VERITÀ:</strong> Il costo REALE sarà il 130-150% di quello che pensi inizialmente. 
+                        Sempre. Pianifica di conseguenza o preparati a rimanere a metà.
+                    </div>
+                `,
+
+                timeline: `
+                    <p><strong>TIMELINE REALISTICA (non quella che ti raccontano i venditori):</strong></p>
+
+                    <div class="phase">
+                        <div class="phase-title">📋 FASE 1: PIANIFICAZIONE (10-15% del tempo totale)</div>
+                        <ul>
+                            <li>Definizione requisiti dettagliati: 3-7 giorni</li>
+                            <li>Analisi fattibilità tecnica: 2-4 giorni</li>
+                            <li>Budget definitivo e approvazioni: 2-5 giorni</li>
+                            <li><strong>Subtotale: 1-2 settimane</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">🔨 FASE 2: SVILUPPO/IMPLEMENTAZIONE (60-70% del tempo totale)</div>
+                        <ul>
+                            <li>Sviluppo core: varia per soluzione (vedi sotto)</li>
+                            <li>Testing e debug: +30% tempo sviluppo</li>
+                            <li>Revisioni e modifiche: +20% tempo sviluppo</li>
+                            <li><strong>Subtotale: moltiplicatore 1.5x sul tempo stimato</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">🚀 FASE 3: DEPLOY E GO-LIVE (15-20% del tempo totale)</div>
+                        <ul>
+                            <li>Setup produzione: 3-5 giorni</li>
+                            <li>Formazione utenti: 2-3 giorni</li>
+                            <li>Periodo di stabilizzazione: 1-2 settimane</li>
+                            <li>Fix problemi post-lancio: 1-2 settimane</li>
+                            <li><strong>Subtotale: 3-5 settimane</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ ATTENZIONE:</strong> Questi sono tempi in cui si lavora SOLO su questo progetto. 
+                        Se deve essere fatto "quando c'è tempo", moltiplica tutto x3.
+                    </div>
+
+                    <div class="info-box">
+                        <strong>📅 REGOLA D'ORO:</strong> Qualunque tempo ti dicano, aggiungi il 50%. 
+                        Se pensi "30 giorni", pianifica per 45. Se pensi "3 mesi", pianifica per 4.5.
+                    </div>
+                `,
+
+                procedures: `
+                    <p><strong>PROCEDURA STEP-BY-STEP PER IMPLEMENTARE QUESTA IDEA:</strong></p>
+
+                    <div class="phase">
+                        <div class="phase-title">STEP 1: VALIDAZIONE INIZIALE (Settimana 1)</div>
+                        <ol>
+                            <li>Documenta esattamente COSA vuoi ottenere (obiettivi misurabili)</li>
+                            <li>Identifica CHI userà questa soluzione in FICES</li>
+                            <li>Definisci COME misurerai il successo</li>
+                            <li>Fai un reality check: serve DAVVERO o è un "nice to have"?</li>
+                            <li>Decisione GO/NO-GO</li>
+                        </ol>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">STEP 2: PIANIFICAZIONE DETTAGLIATA (Settimana 2-3)</div>
+                        <ol>
+                            <li>Scegli la soluzione dalla lista (pragmatica, Excel, completa, ibrida, o niente)</li>
+                            <li>Se serve sviluppo: raccogli 3 preventivi da fornitori diversi</li>
+                            <li>Definisci milestone e deadline</li>
+                            <li>Assegna responsabilità interne FICES (chi segue il progetto?)</li>
+                            <li>Approva budget e timeline</li>
+                        </ol>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">STEP 3: ESECUZIONE (varia per soluzione)</div>
+                        <ol>
+                            <li>Kickoff meeting con tutti gli stakeholder</li>
+                            <li>Sviluppo/implementazione secondo piano</li>
+                            <li>Review settimanali avanzamento</li>
+                            <li>Testing continuo (non lasciare tutto alla fine!)</li>
+                            <li>Aggiustamenti in corso d'opera</li>
+                        </ol>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">STEP 4: TESTING E VALIDAZIONE (2-3 settimane)</div>
+                        <ol>
+                            <li>Test funzionali: tutto funziona come previsto?</li>
+                            <li>Test con utenti reali: le persone FICES capiscono come usarlo?</li>
+                            <li>Test di stress: funziona sotto carico?</li>
+                            <li>Raccolta feedback e fix problemi critici</li>
+                            <li>Validazione finale: GO/NO-GO per produzione</li>
+                        </ol>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">STEP 5: DEPLOYMENT E FORMAZIONE (1-2 settimane)</div>
+                        <ol>
+                            <li>Preparazione ambiente produzione</li>
+                            <li>Migrazione dati (se necessario)</li>
+                            <li>Formazione utenti finali</li>
+                            <li>Documentazione operativa</li>
+                            <li>Go-live!</li>
+                        </ol>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">STEP 6: STABILIZZAZIONE (2-4 settimane)</div>
+                        <ol>
+                            <li>Supporto intensivo primi giorni</li>
+                            <li>Monitoraggio problemi</li>
+                            <li>Fix rapidi bug critici</li>
+                            <li>Raccolta feedback operativo</li>
+                            <li>Ottimizzazioni</li>
+                        </ol>
+                    </div>
+
+                    <div class="success-box">
+                        <strong>✅ CHECKPOINT:</strong> Dopo ogni fase, fai una review onesta. 
+                        Se i costi stanno esplodendo o i tempi raddoppiando, è meglio fermarsi che buttare soldi in un buco nero.
+                    </div>
+                `,
+
+                feasibility: `
+                    <p><strong>FATTIBILITÀ SPECIFICA PER FICES SRL (Lecce):</strong></p>
+
+                    <div class="info-box">
+                        <strong>🏢 CONTESTO FICES:</strong>
+                        <ul>
+                            <li>Azienda: ~50 dipendenti</li>
+                            <li>Settore: costruzioni, cave, calcestruzzo, conglomerati bituminosi</li>
+                            <li>Operatività: Sud Italia (Lecce)</li>
+                            <li>Infrastruttura: 2 cave, impianti fissi/mobili, laboratorio interno</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">✅ PUNTI DI FORZA PER IMPLEMENTAZIONE</div>
+                        <ul>
+                            <li><strong>Dimensione gestibile:</strong> 50 persone = più facile coordinare e formare</li>
+                            <li><strong>Verticalità:</strong> controllo completo catena produttiva = più facile integrare</li>
+                            <li><strong>Tecnologia esistente:</strong> già avete TeamSystem, quindi non partite da zero</li>
+                            <li><strong>Workshop interno:</strong> capacità di manutenzione e adattamento locale</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">⚠️ CRITICITÀ FICES-SPECIFICHE</div>
+                        <ul>
+                            <li><strong>Ambiente operativo:</strong> cave e cantieri = serve robustezza, non software delicati</li>
+                            <li><strong>Connettività:</strong> cava potrebbe non avere 4G/5G stabile = serve funzionamento offline</li>
+                            <li><strong>Personale operativo:</strong> non tutti sono tech-savvy = UX deve essere SEMPLICE</li>
+                            <li><strong>Budget PMI:</strong> non avete budget Google = dovete essere selettivi</li>
+                            <li><strong>Normative ANAS:</strong> se tocca la produzione, deve rispettare capitolati tecnici</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">🎯 RACCOMANDAZIONI PER FICES</div>
+                        <ol>
+                            <li><strong>Inizia piccolo:</strong> meglio una soluzione Excel che funziona che un'app Enterprise che fallisce</li>
+                            <li><strong>Pensa offline-first:</strong> tutto ciò che serve in cava deve funzionare senza internet</li>
+                            <li><strong>Integrazione TeamSystem:</strong> qualsiasi soluzione nuova deve integrarsi, non sostituire</li>
+                            <li><strong>Coinvolgi operativi:</strong> chiedi a chi lavora in cava cosa serve DAVVERO</li>
+                            <li><strong>ROI chiaro:</strong> se non risparmi almeno 10.000€/anno o 200 ore/anno, probabilmente non vale la pena</li>
+                        </ol>
+                    </div>
+
+                    <div class="${feasibilityScore >= 7 ? 'success-box' : 'warning-box'}">
+                        <strong>🎯 VERDETTO FATTIBILITÀ FICES:</strong><br>
+                        ${feasibilityScore >= 7 ? 
+                            'FATTIBILE - Hai buone probabilità di successo se segui le best practice e non tagli angoli.' :
+                            feasibilityScore >= 4 ?
+                            'FATTIBILE CON RISERVE - Serve pianificazione accurata e budget di sicurezza. Non è banale.' :
+                            'ALTO RISCHIO - Probabilmente troppo complesso/costoso per FICES ora. Considera alternative più semplici.'
+                        }
+                    </div>
+                `,
+
+                resources: `
+                    <p><strong>RISORSE NECESSARIE (oltre ai soldi):</strong></p>
+
+                    <div class="phase">
+                        <div class="phase-title">👥 PERSONE (FICES INTERNE)</div>
+                        <ul>
+                            <li><strong>Project Owner:</strong> 1 persona FICES (te?) - 10-15 ore/settimana per 2-4 mesi</li>
+                            <li><strong>Key Users:</strong> 2-3 persone che useranno il sistema - 5 ore/settimana</li>
+                            <li><strong>IT/Tech Reference:</strong> 1 persona che capisce minimamente di tech - 3-5 ore/settimana</li>
+                            <li><strong>Decision Maker:</strong> chi approva budget e decisioni - disponibilità quando serve</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">👥 PERSONE (ESTERNE)</div>
+                        <ul>
+                            ${isApp ? '<li><strong>Sviluppatore/Software House:</strong> dipende dalla soluzione scelta</li>' : ''}
+                            <li><strong>Consulente (se serve):</strong> esperto di processo per ottimizzazione</li>
+                            <li><strong>Formatore:</strong> per training utenti finali (può essere interno o esterno)</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">💻 TECNOLOGIA E INFRASTRUTTURA</div>
+                        <ul>
+                            <li><strong>Hardware:</strong> ${isApp ? 'Server/Cloud per hosting app + device utenti (tablet/smartphone se serve)' : 'PC/tablet esistenti probabilmente sufficienti'}</li>
+                            <li><strong>Software:</strong> licenze necessarie (OS, database, tool sviluppo)</li>
+                            <li><strong>Connettività:</strong> internet stabile (almeno 20 Mbps in ufficio, 4G in cava)</li>
+                            <li><strong>Backup:</strong> sistema di backup dati (cloud o locale)</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase">
+                        <div class="phase-title">📚 CONOSCENZA E COMPETENZE</div>
+                        <ul>
+                            <li><strong>Process knowledge:</strong> conoscenza approfondita processo FICES da ottimizzare</li>
+                            <li><strong>Tech knowledge:</strong> qualcuno in FICES che capisce tecnologia (anche base)</li>
+                            <li><strong>Change management:</strong> capacità di gestire resistenza al cambiamento</li>
+                            <li><strong>Problem solving:</strong> quando (non "se") qualcosa va storto, serve qualcuno che risolve</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>💀 RISORSA PIÙ CRITICA:</strong> Il TEMPO delle persone FICES. 
+                        Non sottovalutare quanto tempo questo progetto prenderà al personale interno. 
+                        Se tutti sono già al 110% di carico, questo progetto fallirà per mancanza di attenzione, non per mancanza di soldi.
+                    </div>
+                `,
+
+                finalVerdict: `
+                    <div class="${feasibilityScore >= 7 ? 'success-box' : feasibilityScore >= 4 ? 'warning-box' : 'warning-box'}" style="font-size: 1.1em;">
+                        <h4 style="margin-bottom: 15px; font-size: 1.3em;">
+                            ${feasibilityScore >= 7 ? '✅ VERDICT: FATTIBILE' : feasibilityScore >= 4 ? '⚠️ VERDICT: PROCEDI CON CAUTELA' : '❌ VERDICT: ALTO RISCHIO'}
+                        </h4>
+
+                        <p><strong>IN PAROLE POVERE:</strong></p>
+                        <p>
+                            ${feasibilityScore >= 7 ? 
+                                `Questa idea ha senso per FICES. I costi sono giustificabili, i tempi realistici, i rischi gestibili. 
+                                PERÒ: non abbassare la guardia. Segui le procedure, rispetta le timeline, non tagliare angoli per risparmiare. 
+                                Se lo fai bene, hai buone probabilità di successo.` :
+                                feasibilityScore >= 4 ?
+                                `Questa idea è al limite. Può funzionare, ma devi essere MOLTO disciplinato. Non c'è margine per errori, 
+                                sforamenti budget o improvvisazione. Se decidi di procedere, serve pianificazione maniacale e controllo costante. 
+                                Un'alternativa più semplice potrebbe darti l'80% dei benefici con il 30% dei rischi.` :
+                                `Onestamente? Questa idea è troppo complessa/costosa/rischiosa per FICES in questo momento. 
+                                Il rapporto rischio/beneficio non è favorevole. Considera seriamente la soluzione "Non Fare Niente" o 
+                                l'approccio Excel. A volte la migliore decisione imprenditoriale è dire "no" a progetti affascinanti ma irrealistici.`
+                            }
+                        </p>
+
+                        <p style="margin-top: 15px;"><strong>LA DOMANDA FINALE:</strong></p>
+                        <p style="font-style: italic; color: #ffaa00;">
+                            "Se questa idea fallisce, FICES sopravvive lo stesso? Se la risposta è no, allora il rischio è troppo alto. 
+                            Se la risposta è sì, ma sarebbe un grande spreco di soldi e tempo, allora devi essere sicuro al 90% che funzionerà. 
+                            Ci sei?"
+                        </p>
+
+                        <p style="margin-top: 20px;"><strong>RACCOMANDAZIONE FINALE:</strong></p>
+                        <p>
+                            ${feasibilityScore >= 7 ? 
+                                '✅ PROCEDI - Ma seguendo rigorosamente procedure e best practice.' :
+                                feasibilityScore >= 4 ?
+                                '⚠️ PROCEDI SOLO SE hai budget buffer del 50%, timeline flessibili, e commitment totale.' :
+                                '❌ NON PROCEDERE - O riformula completamente con approccio più semplice.'
+                            }
+                        </p>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 20px;">
+                        <strong>📞 PROSSIMI PASSI CONSIGLIATI:</strong>
+                        <ol style="margin-top: 10px;">
+                            <li>Stampa questa analisi e leggila a mente fredda domani mattina</li>
+                            <li>Discutila con almeno 2-3 persone di cui ti fidi (anche esterne a FICES)</li>
+                            <li>Se decidi di procedere: scegli UNA delle 5 soluzioni proposte sotto</li>
+                            <li>Fai preventivi reali (non stime)</li>
+                            <li>Decisione finale GO/NO-GO basata su dati, non entusiasmo</li>
+                        </ol>
+                    </div>
+                `
+            };
+        }
+
+        function displayResults(analysis) {
+            document.getElementById('verdict').textContent = analysis.verdict;
+            document.getElementById('verdict').className = analysis.overallFeasibility ? 'verdict positive' : 'verdict';
+
+            // Mostra super consulenza
+            if (analysis.consulenza) {
+                document.getElementById('superConsulenza').style.display = 'block';
+                document.getElementById('analysisDetail').innerHTML = analysis.consulenza.analysis;
+                document.getElementById('risksDetail').innerHTML = analysis.consulenza.risks;
+                document.getElementById('costsDetail').innerHTML = analysis.consulenza.costs;
+                document.getElementById('timelineDetail').innerHTML = analysis.consulenza.timeline;
+                document.getElementById('proceduresDetail').innerHTML = analysis.consulenza.procedures;
+                document.getElementById('feasibilityDetail').innerHTML = analysis.consulenza.feasibility;
+                document.getElementById('resourcesDetail').innerHTML = analysis.consulenza.resources;
+                document.getElementById('finalVerdictDetail').innerHTML = analysis.consulenza.finalVerdict;
+            }
+
+            const solutionsContainer = document.getElementById('solutions');
+            solutionsContainer.innerHTML = '<h2 style="color: #ff4444; margin: 30px 0 20px 0; font-size: 2em;">💡 5 SOLUZIONI ALTERNATIVE</h2>';
+
+            analysis.solutions.forEach((solution, index) => {
+                const solutionEl = document.createElement('div');
+                const rating = solution.feasibility >= 7 ? 'feasible' : solution.feasibility >= 4 ? 'maybe' : 'nope';
+                const tagClass = solution.feasibility >= 7 ? 'tag-feasible' : solution.feasibility >= 4 ? 'tag-maybe' : 'tag-nope';
+                const tagText = solution.feasibility >= 7 ? 'FATTIBILE' : solution.feasibility >= 4 ? 'FORSE' : 'SCONSIGLIATO';
+
+                solutionEl.className = `solution ${rating}`;
+                solutionEl.innerHTML = `
+                    <div class="solution-header">
+                        <div class="solution-title">${solution.title}</div>
+                        <div class="solution-tag ${tagClass}">${tagText}</div>
+                    </div>
+                    <p style="color: #ccc; margin-bottom: 15px;">${solution.description}</p>
+                    <div class="metric">
+                        <div class="metric-item">
+                            <div class="metric-label">💰 Costo</div>
+                            <div class="metric-value">${solution.cost > 0 ? '€' + solution.cost.toLocaleString() : 'GRATIS'}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">⏱️ Tempo</div>
+                            <div class="metric-value">${solution.time > 0 ? solution.time + ' gg' : '-'}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">📊 Fattibilità</div>
+                            <div class="metric-value">${solution.feasibility}/10</div>
+                        </div>
+                    </div>
+                    <div class="brutal-truth">
+                        <h4>💀 VERITÀ BRUTALE:</h4>
+                        <p>${solution.brutal}</p>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-modify" onclick="editSolution(${index})">✏️ Modifica</button>
+                        <button class="btn-modify" onclick="duplicateSolution(${index})">📋 Duplica</button>
+                    </div>
+                `;
+                solutionsContainer.appendChild(solutionEl);
+            });
+        }
+
+        function editSolution(index) {
+            currentEditIndex = index;
+            const solution = currentSolutions[index];
+            
+            document.getElementById('editTitle').value = solution.title;
+            document.getElementById('editCost').value = solution.cost;
+            document.getElementById('editTime').value = solution.time;
+            document.getElementById('editFeasibility').value = solution.feasibility;
+            document.getElementById('editDescription').value = solution.description;
+            
+            document.getElementById('editModal').classList.add('active');
+            // Previeni scroll del body su iOS
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditIndex = -1;
+            // Ripristina scroll del body
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+        }
+
+        function duplicateSolution(index) {
+            const solution = {...currentSolutions[index]};
+            solution.title += ' (Copia)';
+            currentSolutions.push(solution);
+            displayResults({ 
+                verdict: document.getElementById('verdict').textContent,
+                overallFeasibility: true,
+                solutions: currentSolutions 
+            });
+        }
+
+        document.getElementById('editForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (currentEditIndex >= 0) {
+                currentSolutions[currentEditIndex] = {
+                    title: document.getElementById('editTitle').value,
+                    cost: parseInt(document.getElementById('editCost').value),
+                    time: parseInt(document.getElementById('editTime').value),
+                    feasibility: parseInt(document.getElementById('editFeasibility').value),
+                    description: document.getElementById('editDescription').value,
+                    brutal: currentSolutions[currentEditIndex].brutal
+                };
+                
+                displayResults({ 
+                    verdict: document.getElementById('verdict').textContent,
+                    overallFeasibility: true,
+                    solutions: currentSolutions 
+                });
+                closeEditModal();
+            }
+        });
+
+        // Verifica supporto riconoscimento vocale all'avvio
+        window.addEventListener('DOMContentLoaded', () => {
+            const isHTTPS = window.location.protocol === 'https:';
+            const isLocalFile = window.location.protocol === 'file:';
+            const statusDiv = document.getElementById('status');
+            
+            if (!recognition) {
+                const recordBtn = document.getElementById('recordBtn');
+                recordBtn.disabled = true;
+                recordBtn.style.opacity = '0.5';
+                recordBtn.textContent = '🎤 Microfono Non Supportato';
+                recordBtn.style.background = '#666';
+                
+                // Mostra messaggio
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'status';
+                statusDiv.style.background = '#ffaa0020';
+                statusDiv.style.color = '#ffaa00';
+                statusDiv.innerHTML = '⚠️ Il riconoscimento vocale non è disponibile su questo browser.<br>Usa il campo di testo per inserire la tua idea.';
+            } else if (isLocalFile) {
+                const recordBtn = document.getElementById('recordBtn');
+                recordBtn.disabled = true;
+                recordBtn.style.opacity = '0.5';
+                recordBtn.textContent = '🔒 Richiede HTTPS';
+                recordBtn.style.background = '#ff4444';
+                
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'status';
+                statusDiv.style.background = '#ff440020';
+                statusDiv.style.color = '#ff4444';
+                statusDiv.innerHTML = '🚫 <strong>FILE LOCALE RILEVATO</strong><br>Su iOS, il riconoscimento vocale funziona solo con HTTPS.<br>Carica il file su un server web o usa il campo di testo.';
+            } else if (!isHTTPS) {
+                const recordBtn = document.getElementById('recordBtn');
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'status';
+                statusDiv.style.background = '#ffaa0020';
+                statusDiv.style.color = '#ffaa00';
+                statusDiv.innerHTML = '⚠️ <strong>CONNESSIONE NON SICURA</strong><br>Su iOS, il riconoscimento vocale richiede HTTPS (https://).<br>Il microfono potrebbe non funzionare. Usa il campo di testo come alternativa.';
+            }
+        });
+    </script>
+</body>
+</html>
